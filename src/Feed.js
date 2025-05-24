@@ -1,6 +1,6 @@
 import React from 'react'
 import Post from './Post'
-const Feed = ({posts}) => {
+const Feed = ({posts,fetxhError,isLoading}) => {
   return (
     <>
        {posts.map(post=>

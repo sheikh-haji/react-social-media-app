@@ -49,7 +49,7 @@ const handleSubmit =async( e)=>{
        setSearchResults(filteredResults.reverse());
       }  
  ,[posts,search])
- const {data,fetchError,isLoading}=useAxiosFetch("http://localhost:3500/posts");
+ const {data,fetchError,isLoading}=useAxiosFetch("https://683164ce6205ab0d6c3c206c.mockapi.io/posts");
  useEffect(()=>{
         setPosts(data);
  },[data]);
@@ -105,7 +105,7 @@ const handleEdit=async(id)=> {
 return(
        <div className="App">
                                                        
-                <Header title="Emaan Social media" width={width}/>
+                <Header title="Blog Website" width={width}/>
                 <Nav 
                         search={search}
                         setSearch={setSearch}/> 
