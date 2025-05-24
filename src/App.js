@@ -15,6 +15,8 @@ import api from "./api/posts"
 import EditPost from "./EditPost";
 import useWindowSize from "./customhook/useWindowSize";
 import useAxiosFetch from "./customhook/useAxiosFetch";
+import { useLocation } from 'react-router-dom';
+import { useRef } from "react";
 
 function App() {
         const [search,setSearch]=useState('');
@@ -27,12 +29,17 @@ const[editTitle,setEditTitle]=useState('');
 const [editBody,setEditBody]=useState('');
 const {width}=useWindowSize()
 
+
+const reloadHome = () => {
+  navigate('/', { replace: true });
+  window.location.reload(); // hard reload
+};
 const handleSubmit =async( e)=>{
         e.preventDefault();
         const id=posts.length?posts[posts.length-1].id+1:1;
         const datetime=format(new Date(),'MMMM dd, yyyy pp');
         const newPost={id,title:postTitle,datetime,body:postBody};
-        const response=await api.post("/posts",newPost);
+        const response=await api.post("https://683164ce6205ab0d6c3c206c.mockapi.io/posts",newPost);
         console.log(response)
         const allPosts=[...posts,newPost];
         setPosts(allPosts);
@@ -43,10 +50,12 @@ const handleSubmit =async( e)=>{
 
  useEffect(
       ()=>{
-        const filteredResults=posts.filter((post)=>
-        ((post.body).toLowerCase()).includes(search.toLowerCase())
-|| ((post.title).toLowerCase()).includes(search.toLowerCase()));
-       setSearchResults(filteredResults.reverse());
+       const filteredResults = posts.filter((post) =>
+  (post.body && post.body.toLowerCase().includes(search.toLowerCase())) ||
+  (post.title && post.title.toLowerCase().includes(search.toLowerCase()))
+);
+setSearchResults(filteredResults.reverse());
+
       }  
  ,[posts,search])
  const {data,fetchError,isLoading}=useAxiosFetch("https://683164ce6205ab0d6c3c206c.mockapi.io/posts");
@@ -76,7 +85,7 @@ const handleSubmit =async( e)=>{
 // },[])
 const handleDelete=async (id)=>{
      try{
-        await api.delete(`posts/${id}`);
+        await api.delete(`https://683164ce6205ab0d6c3c206c.mockapi.io/posts/${id}`);
         const postsList=posts.filter(post=>post.id!==id);
      setPosts(postsList);
      navigate("/");
@@ -90,18 +99,18 @@ const handleEdit=async(id)=> {
         const datetime=format(new Date(),'MMMM dd, yyyy pp');
         const updatedPost={id,title:editTitle,datetime,body:editBody};
         try{
-                const response=await api.put(`/posts/${id}`,updatedPost);
+                const response=await api.put(`https://683164ce6205ab0d6c3c206c.mockapi.io/posts/${id}`,updatedPost);
                 setPosts(posts.map(post=>post.id===id?{updatedPost}:post));
+                console.log("updated posts");
                 setEditTitle('');
                 setEditBody('');
-                navigate('/');
+                reloadHome();
 
         }
         catch(err){
                   console.log(`Error: ${err.message}`);
         }
 }
-
 return(
        <div className="App">
                                                        
@@ -111,7 +120,7 @@ return(
                         setSearch={setSearch}/> 
                 
                 <Routes>
-                       <Route path="/" element={<Home posts={searchResults}/>}/>
+                       <Route path="/" element={<Home  posts={searchResults} />}/>
                         
                                 <Route path="/post"  element={<NewPost 
                                         handleSubmit={handleSubmit}
@@ -127,6 +136,7 @@ return(
                                 setEditBody={setEditBody}
                                 editTitle={editTitle}
                                 setEditTitle={setEditTitle}
+                                
                         /> }/>
                         <Route path="about" element={<About />}/>
                         <Route path="*" element={<Missing />}/>
